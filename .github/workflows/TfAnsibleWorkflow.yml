@@ -60,6 +60,24 @@ jobs:
         working-directory: ./ansible
         run: ansible-playbook -i ec2Maschinen.ini meinPlaybook.yml
 
+      - name: Notify Slack on Success
+        if: ${{ success() }}
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            text: "Pipeline wurde erfolgreich beendet"
+  
+      - name: Notify Slack on Failure
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            text: "Pipeline ist fehlgeschlagen"
+
   destroy:
     name: Terraform destroy
     runs-on: ubuntu-latest #runner
